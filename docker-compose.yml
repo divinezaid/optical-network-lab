@@ -1,0 +1,32 @@
+# Four network elements in a ring: node-a - node-b - node-c - node-d - node-a.
+# Each container serves its NBI on port 8000; the host maps them to 8001-8004.
+# Logs from every node land in ./logs on the host.
+#
+#   docker compose up -d --build
+#   NBI_URLS=node-a=http://localhost:8001,node-b=http://localhost:8002,node-c=http://localhost:8003,node-d=http://localhost:8004 python run.py test
+
+x-node: &node
+  build: .
+  volumes:
+    - ./logs:/logs
+  environment: &env
+    PORTS: L1,L2
+    EVAL_INTERVAL_S: "0.5"
+
+services:
+  node-a:
+    <<: *node
+    environment: { <<: *env, NODE_ID: node-a }
+    ports: ["8001:8000"]
+  node-b:
+    <<: *node
+    environment: { <<: *env, NODE_ID: node-b }
+    ports: ["8002:8000"]
+  node-c:
+    <<: *node
+    environment: { <<: *env, NODE_ID: node-c }
+    ports: ["8003:8000"]
+  node-d:
+    <<: *node
+    environment: { <<: *env, NODE_ID: node-d }
+    ports: ["8004:8000"]
